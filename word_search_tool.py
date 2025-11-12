@@ -1,5 +1,5 @@
 """
-Final Project CSCI1300 – Word Search
+Final Project CSCI1300 – Word Search Puzzle Generator and Solver
 Author: Zoë Finelli
 
 This script provides a complete toolset for generating and solving
