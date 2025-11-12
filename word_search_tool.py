@@ -1,5 +1,5 @@
 """
-Final Project ATRI 4500 – Word Search Puzzle Generator and Solver
+Final Project CSCI1300 – Word Search
 Author: Zoë Finelli
 
 This script provides a complete toolset for generating and solving
@@ -12,7 +12,7 @@ The script can be run from the command line in two modes:
 
 Examples:
     python word_search_tool.py generate --words wordBank.txt --rows 10 --cols 10
-    python word_search_tool.py solve --puzzle wordPuzzle.txt --words wordBank.txt
+    python word_search_tool.py solve --puzzle wordPuzzle.txt --words wordBank.txt --ok solved_key.txt
 """
 
 import random
@@ -119,8 +119,8 @@ class WordSearch:
                 # Try to find a valid spot
                 location = self._find_placement_location(word)
                 if location:
-                    r_start, c_start, direction_vector = location
-                    self._place_word(word, r_start, c_start, direction_vector)
+                    r_start, c_start, direction_name = location
+                    self._place_word(word, r_start, c_start, direction_name)
                     placed = True
                     placed_words.append(word)
                     break # Success, move to the next word
@@ -134,20 +134,22 @@ class WordSearch:
     def _find_placement_location(self, word):
         """
         Tries to find a random valid starting coordinate (r, c)
-        and direction (dr, dc) where the given word will fit.
+        and direction name where the given word will fit.
         """
-        # Create a shuffled list of directions to try
-        shuffled_directions = list(self.directions.values())
-        random.shuffle(shuffled_directions)
+        # Create a shuffled list of direction names to try
+        shuffled_direction_names = list(self.directions.keys())
+        random.shuffle(shuffled_direction_names)
         
-        for dr, dc in shuffled_directions:
+        for direction_name in shuffled_direction_names:
+            dr, dc = self.directions[direction_name]
+            
             # Pick a random starting point
             r_start = random.randint(0, self.rows - 1)
             c_start = random.randint(0, self.columns - 1)
             
             # Check if the word fits at this location
             if self._check_fit(word, r_start, c_start, dr, dc):
-                return (r_start, c_start, (dr, dc))
+                return (r_start, c_start, direction_name)
         
         # If we get through all directions and haven't found a fit
         return None
@@ -176,13 +178,12 @@ class WordSearch:
             
         return True
 
-    def _place_word(self, word, r_start, c_start, direction_vector):
+    def _place_word(self, word, r_start, c_start, direction_name):
         """
-        This single method replaces all 8 'write...' functions from
-        the original script. By using the (dr, dc) vector, we can
-        place any word in any direction with one simple loop.
+        This single method replaces all 8 'write...' functions.
+        It places a word on both the main grid and the key grid.
         """
-        dr, dc = direction_vector
+        dr, dc = self.directions[direction_name]
         r, c = r_start, c_start
         for letter in word:
             self.grid[r][c] = letter
@@ -203,11 +204,11 @@ class WordSearch:
     # --- 2. PUZZLE SOLVING METHODS
     # -----------------------------------------------------------------
 
-    def solve_puzzle(self, puzzle_file, word_file, output_json):
+    def solve_puzzle(self, puzzle_file, word_file, output_json, output_key_file):
         """
         Main public method for solving an existing puzzle.
         It orchestrates reading the files, finding the words,
-        and writing the JSON solution.
+        and writing the solution files.
         """
         print(f"starting puzzle solver for '{puzzle_file}'...")
         try:
@@ -223,6 +224,13 @@ class WordSearch:
         # Save the solution to the specified JSON file
         self.export_solution_to_json(solution, output_json)
         print(f"solving complete. results saved to '{output_json}'")
+
+        # --- NEW FEATURE ---
+        # If the user provided an --output-key filename,
+        # save the key_grid (which is now filled) to that file.
+        if output_key_file:
+            self._write_grid_to_file(self.key_grid, output_key_file)
+            print(f"solver key saved to: '{output_key_file}'")
 
     def _find_all_words(self):
         """
@@ -247,7 +255,6 @@ class WordSearch:
                 # From this cell (r, c), check all 8 directions
                 for direction_name, (dr, dc) in self.directions.items():
                     
-                    # Check for words starting at (r, c) in this direction
                     found_word, end_coords = self._check_direction(word_set, max_len, r, c, dr, dc)
                     
                     if found_word:
@@ -259,6 +266,9 @@ class WordSearch:
                                 "start": (r, c),
                                 "end": end_coords
                             }
+                            # --- NEW FEATURE ---
+                            # "Draw" the found word onto our key_grid
+                            self._place_word_on_key(found_word, r, c, direction_name)
 
         # Check for any words we *didn't* find
         for word in self.word_list:
@@ -266,6 +276,20 @@ class WordSearch:
                 found_words[word] = "word not found"
                 
         return found_words
+
+    def _place_word_on_key(self, word, r_start, c_start, direction_name):
+        """
+        A helper for the solver. This "draws" a found word onto the
+        self.key_grid, leaving the original puzzle grid untouched.
+        """
+        dr, dc = self.directions[direction_name]
+        r, c = r_start, c_start
+        for letter in word:
+            # Ensure we don't go out of bounds (though solver should prevent this)
+            if 0 <= r < self.rows and 0 <= c < self.columns:
+                self.key_grid[r][c] = letter
+            r += dr
+            c += dc
 
     def _check_direction(self, word_set, max_len, r_start, c_start, dr, dc):
         """
@@ -332,6 +356,13 @@ class WordSearch:
         self.grid = grid
         self.rows = len(grid)
         self.columns = len(grid[0]) if self.rows > 0 else 0
+        
+        # --- NEW ---
+        # Initialize the key_grid with '*' placeholders
+        # now that we know the dimensions. This is essential
+        # for the 'solve' command's new feature.
+        self.key_grid = [['*' for _ in range(self.columns)] for _ in range(self.rows)]
+
 
     def _write_grid_to_file(self, grid, filename):
         """
@@ -371,7 +402,7 @@ def main():
     # 1. Create the main parser
     parser = argparse.ArgumentParser(
         description="A tool to generate or solve word search puzzles.",
-        epilog="example: %(prog)s generate -w words.txt -r 15 -c 15"
+        epilog="example: %(prog)s solve -p puzzle.txt -w words.txt --ok solved.txt"
     )
     subparsers = parser.add_subparsers(dest="command", required=True, help="the action to perform")
 
@@ -431,13 +462,18 @@ def main():
         default="wordSearchResults.json", 
         help="filename for the JSON solution output (default: wordSearchResults.json)"
     )
+    # --- NEW ARGUMENT ---
+    solve_parser.add_argument(
+        "--ok", "--output-key",
+        dest="output_key",
+        default=None,  # By default, we don't save a key
+        help="optional: filename for the solved puzzle key .txt (default: None)"
+    )
 
     # 4. Parse the arguments provided by the user
     args = parser.parse_args()
 
     # 5. Create our WordSearch object and run the correct command
-    # This is the beauty of OOP: we create one object
-    # and just call the method we need.
     game = WordSearch()
 
     if args.command == "generate":
@@ -456,7 +492,8 @@ def main():
         game.solve_puzzle(
             puzzle_file=args.puzzle, 
             word_file=args.words,
-            output_json=args.output_json
+            output_json=args.output_json,
+            output_key_file=args.output_key  # Pass the new argument
         )
 
 if __name__ == "__main__":
