@@ -12,7 +12,7 @@ The script can be run from the command line in two modes:
 
 Examples:
     python word_search_tool.py generate --words wordBank.txt --rows 10 --cols 10
-    python word_search_tool.py solve --puzzle wordPuzzle.txt --words wordBank.txt --ok solved_key.txt
+    python word_search_tool.py solve --puzzle testPuzzle.txt --words testBank.txt --ok solved_key.txt
 """
 
 import random
