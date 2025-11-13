@@ -1,137 +1,126 @@
-🐍 Python Word Search Tool
+# Python Word Search Tool
 
-This is a command-line tool written in Python that can both generate new word search puzzles and solve existing ones.
+A command-line application for generating and solving word search puzzles, written in Python and designed following object-oriented principles.
 
-I built this project to practice my Python skills, specifically focusing on Object-Oriented Programming (OOP), file I/O, and creating a clean, professional command-line interface. It's a big step up from my first script-based projects!
+## Overview
 
-✨ Key Features
+This project serves as a comprehensive tool for both creating new word search puzzles and solving existing ones. It emphasizes modern practices in Python software development, including strong encapsulation through object-oriented programming (OOP), robust file handling, and a clear, professional command-line interface.
 
-Dual Modes: Works as both a puzzle Generator and a puzzle Solver.
+The tool supports advanced puzzle generation logic such as diagonal word placement, overlapping words, and customization of puzzle dimensions. It is well-suited both for casual users and for those interested in the underlying algorithms of grid-based puzzle creation and search.
 
-Complex Generation: The generator intelligently places words in all 8 directions (horizontal, vertical, and diagonal).
+## Features
 
-Smart Overlap: Words can share letters, allowing for complex and dense puzzles, just like real ones.
+- **Dual functionality:** The program can either generate new puzzles from a word list or solve existing puzzles using a specified word bank.
+- **Eight-directional word placement:** Words may be placed horizontally, vertically, and diagonally in both directions, providing a high level of puzzle complexity.
+- **Support for overlapping words:** The generator intelligently allows words to share letters, increasing density while ensuring correctness.
+- **Flexible file input and output:** Accepts plain text files for both word lists and puzzle grids, and produces outputs including puzzles, answer keys, and detailed solution reports.
+- **Human-readable and machine-parseable outputs:** Solver results are written to a JSON file specifying found words, their coordinates, and directions; answer keys can be generated for manual review.
+- **Command-line interface:** All features are accessible via clear command-line arguments with the help of Python’s `argparse` module.
+- **Graceful error handling:** Handles missing files and infeasible word placements appropriately, with meaningful feedback.
 
-Flexible I/O: Reads from simple .txt files for both grids and word banks.
+## Usage
 
-Detailed Output: The solver outputs a .json file with the coordinates and direction of every word, and can generate a human-readable .txt answer key.
+### Setup
 
-CLI Interface: Uses Python's argparse module for a professional command-line experience (no more messy input() prompts!).
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/znfinelli/python-word-search-tool.git
+    cd python-word-search-tool
+    ```
 
-🚀 How to Use
+### Generating a New Puzzle
 
-First, clone this repository to your local machine:
+To generate a puzzle, use the `generate` mode. Specify a word list, the number of rows, and the number of columns:
 
-git clone [https://github.com/your-username/python-word-search-tool.git](https://github.com/your-username/python-word-search-tool.git)
-cd python-word-search-tool
-
-
-The script word_search_tool.py has two main commands: generate and solve.
-
-1. To Generate a New Puzzle
-
-Use the generate command. You must provide a word list (-w), the number of rows (-r), and the number of columns (-c).
-
-# Example: Generate a 15x15 puzzle using words from 'wordBank.txt'
+```bash
 python word_search_tool.py generate -w wordBank.txt -r 15 -c 15
+```
 
+By default, this creates two files:
+- `wordPuzzle_new.txt` — The completed puzzle, filled with random letters except where words are placed.
+- `wordPuzzle_key.txt` — An answer key showing only the locations of placed words.
 
-This will create two files:
+### Solving an Existing Puzzle
 
-wordPuzzle_new.txt: The final puzzle, filled with random letters.
+To solve a puzzle and locate specified words within a grid, use the `solve` mode:
 
-wordPuzzle_key.txt: The answer key, showing only the placed words.
-
-2. To Solve an Existing Puzzle
-
-Use the solve command. You must provide the puzzle file (-p) and a word list (-w).
-
-# Example: Solve 'testPuzzle.txt' using words from 'testBank.txt'
+```bash
 python word_search_tool.py solve -p testPuzzle.txt -w testBank.txt
+```
 
+This command produces:
+- `wordSearchResults.json` — A structured solution detailing each found word, including its grid coordinates and direction.
 
-This command will create wordSearchResults.json.
+To create a human-readable answer key showing the locations of found words, add the `--ok` argument:
 
-✨ (Optional) Get a .txt Answer Key from the Solver
-
-I also added a feature to get a visual answer key. Just add the --ok (output key) argument:
-
-# This does the same as above, but ALSO creates 'my_solved_key.txt'
+```bash
 python word_search_tool.py solve -p testPuzzle.txt -w testBank.txt --ok my_solved_key.txt
+```
 
+## Program Design and Algorithmic Details
 
-🎓 Project Design & What I Learned
+The core of this tool is encapsulated in the `WordSearch` class, which maintains all relevant state and ensures clear separation of responsibilities. This design approach guarantees that puzzle grids and word lists are managed safely, avoiding global state and facilitating future extensibility.
 
-This project was a fantastic learning experience in software design.
+### Directional Placement
 
-Object-Oriented Design: The biggest goal was to avoid global variables. I refactored my entire original script into a single WordSearch class. All the data (like the grid and word list) is stored as self attributes. This makes the code much cleaner, safer, and easier to debug.
+The program uses a dictionary of "direction vectors" to represent all valid placement directions in the grid:
 
-Algorithmic Thinking (The 8 Directions): My favorite part. Instead of writing 8 huge if/elif blocks for each direction, I used a dictionary of "direction vectors":
-
+```python
 self.directions = {
-    'forward': (0, 1),  # (row_change, col_change)
-    'up':      (-1, 0),
+    'forward': (0, 1),
+    'backward': (0, -1),
+    'down': (1, 0),
+    'up': (-1, 0),
     'diag_fd': (1, 1),
-    ...etc
+    'diag_bd': (1, -1),
+    'diag_fu': (-1, 1),
+    'diag_bu': (-1, -1)
 }
+```
 
+This abstraction allows all word placement and search operations to use a single generalized algorithm, making the code concise, less error-prone, and easier to maintain.
 
-Now, I have one function for placing/checking words that just iterates over these vectors. This was a breakthrough for me and felt like a much smarter, more scalable way to handle complex 2D grid logic—something that will be really useful in my future AI and robotics courses.
+### Handling Overlaps and Grid Constraints
 
-Clean File Handling: I used pathlib for modern path management and argparse to build a real CLI tool. This taught me how to make a script that other people (or even my future self) can use easily without having to read all the code.
+During word placement, the generator verifies both grid boundaries and compatibility with already-placed letters. Overlapping is permitted only if the intersecting grid cell contains the same letter as required by the new word. This enables the creation of dense, realistic puzzles where words may cross, and ensures every puzzle remains solvable and correct.
 
-📁 Example Outputs
+### Example Outputs
 
-wordSearchResults.json (Solver Output)
+#### Solver Output (`wordSearchResults.json`):
 
+```json
 {
     "this": {
         "direction": "backward",
-        "start": [
-            3,
-            8
-        ],
-        "end": [
-            3,
-            5
-        ]
+        "start": [3, 8],
+        "end": [3, 5]
     },
     "test": {
         "direction": "forward",
-        "start": [
-            1,
-            3
-        ],
-        "end": [
-            1,
-            6
-        ]
+        "start": [1, 3],
+        "end": [1, 6]
     },
     "search": {
         "direction": "forward",
-        "start": [
-            4,
-            4
-        ],
-        "end": [
-            4,
-            9
-        ]
+        "start": [4, 4],
+        "end": [4, 9]
     },
-    "ultimatest": {
-        "coordinates": "word not found"
-    }
+    "ultimate": "word not found"
 }
+```
 
+#### Visual Key Output (`my_solved_key.txt`):
 
-my_solved_key.txt (Optional Solver Output)
+An answer key grid showing only the positions of found words; all other spaces are marked with asterisks.
 
-* * * * * * * * * * * * * t e s t * * * * * * * * * * * * * * * * * * t h i s 
-* * * * s e a r c h 
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ```
+```
+* * * * * * * * * * t e s t *
+* * * * * * * * * * * * * * *
+* t h i s * * * * * * * * * *
+* * * * * * * s e a r c h * *
+* * * * * * * * * * * * * * * 
+```
 
----
+## Learning Outcomes
 
-### 📝 License
-
-This project is open-source and available under the [MIT License](LICENSE).
+Working on this project developed stronger skills in object-oriented design, grid-based algorithms, and user-oriented interface development. I learned to refactor procedural code into organized classes, create scalable solutions for 2D search problems, and adopt modern Python tools—such as `pathlib` for file operations and `argparse` for comprehensive CLI interfaces.
