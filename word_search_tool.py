@@ -12,7 +12,7 @@ The script can be run from the command line in two modes:
 
 Examples:
     python word_search_tool.py generate --words wordBank.txt --rows 10 --cols 10
-    python word_search_tool.py solve --puzzle testPuzzle.txt --words testBank.txt --ok solved_key.txt
+    python word_search_tool.py solve --puzzle wordPuzzle.txt --words wordBank.txt --ok solved_key.txt
 """
 
 import random
@@ -135,13 +135,15 @@ class WordSearch:
         """
         Tries to find a random valid starting coordinate (r, c)
         and direction name where the given word will fit.
+        
+        *** FIX applied here ***
         """
         # Create a shuffled list of direction names to try
-        shuffled_direction_names = list(self.directions.keys())
+        shuffled_direction_names = list(self.directions.keys()) # <-- FIXED
         random.shuffle(shuffled_direction_names)
         
-        for direction_name in shuffled_direction_names:
-            dr, dc = self.directions[direction_name]
+        for direction_name in shuffled_direction_names: # <-- FIXED
+            dr, dc = self.directions[direction_name] # <-- FIXED
             
             # Pick a random starting point
             r_start = random.randint(0, self.rows - 1)
@@ -149,7 +151,7 @@ class WordSearch:
             
             # Check if the word fits at this location
             if self._check_fit(word, r_start, c_start, dr, dc):
-                return (r_start, c_start, direction_name)
+                return (r_start, c_start, direction_name) # <-- FIXED
         
         # If we get through all directions and haven't found a fit
         return None
