@@ -20,6 +20,11 @@ The tool supports advanced puzzle generation logic such as diagonal word placeme
 
 ## Usage
 
+### Prerequisities
+- Python 3.10+: This script is written using modern Python (like pathlib and argparse), so a recent version is recommended.
+
+- No external libraries needed. All modules used (random, json, sys, argparse, pathlib) are part of the Python Standard Library. This means you don't need to pip install anything. It's ready to run right away.
+
 ### Setup
 
 1. Clone the repository:
