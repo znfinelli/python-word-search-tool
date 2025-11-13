@@ -193,14 +193,14 @@ An answer key grid showing only the positions of found words; all other spaces a
 ```
 * * i s * * * * * *
 * * t e s t * * * *
-* * * * * * * * * *
+* * * e * * * * * *
 * * * t * * s i h t
-e * * * s e a r c h
-* h * * * o * * * *
-* * t * * * m * w *
-* * * * * * * o * *
-* * * * * * r * * *
-* * * * * d * * * *
+e * * a s e a r c h
+* h * m * o * * * *
+* * t i * * m * w *
+* * * t * * * o * *
+* * * l * * r * * *
+* * * u * d * * * *
 ```
 
 ## Learning Outcomes
