@@ -119,11 +119,16 @@ During word placement, the generator verifies both grid boundaries and compatibi
 An answer key grid showing only the positions of found words; all other spaces are marked with asterisks.
 
 ```
-* * * * * * * * * * t e s t *
-* * * * * * * * * * * * * * *
-* t h i s * * * * * * * * * *
-* * * * * * * s e a r c h * *
-* * * * * * * * * * * * * * * 
+* * i s * * * * * *
+* * t e s t * * * *
+* * * * * * * * * *
+* * * t * * s i h t
+e * * * s e a r c h
+* h * * * o * * * *
+* * t * * * m * w *
+* * * * * * * o * *
+* * * * * * r * * *
+* * * * * d * * * *
 ```
 
 ## Learning Outcomes
