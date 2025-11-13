@@ -76,5 +76,15 @@
             5
         ]
     },
-    "ultimatest": "word not found"
+    "ultimate": {
+        "direction": "up",
+        "start": [
+            9,
+            3
+        ],
+        "end": [
+            2,
+            3
+        ]
+    }
 }
