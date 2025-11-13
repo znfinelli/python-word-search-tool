@@ -95,22 +95,94 @@ During word placement, the generator verifies both grid boundaries and compatibi
 
 ```json
 {
-    "this": {
-        "direction": "backward",
-        "start": [3, 8],
-        "end": [3, 5]
+    "is": {
+        "direction": "forward",
+        "start": [
+            0,
+            2
+        ],
+        "end": [
+            0,
+            3
+        ]
     },
     "test": {
         "direction": "forward",
-        "start": [1, 3],
-        "end": [1, 6]
+        "start": [
+            1,
+            2
+        ],
+        "end": [
+            1,
+            5
+        ]
+    },
+    "this": {
+        "direction": "backward",
+        "start": [
+            3,
+            9
+        ],
+        "end": [
+            3,
+            6
+        ]
     },
     "search": {
         "direction": "forward",
-        "start": [4, 4],
-        "end": [4, 9]
+        "start": [
+            4,
+            4
+        ],
+        "end": [
+            4,
+            9
+        ]
     },
-    "ultimate": "word not found"
+    "the": {
+        "direction": "diag_bu",
+        "start": [
+            6,
+            2
+        ],
+        "end": [
+            4,
+            0
+        ]
+    },
+    "most": {
+        "direction": "diag_bu",
+        "start": [
+            6,
+            6
+        ],
+        "end": [
+            3,
+            3
+        ]
+    },
+    "word": {
+        "direction": "diag_bd",
+        "start": [
+            6,
+            8
+        ],
+        "end": [
+            9,
+            5
+        ]
+    },
+    "ultimate": {
+        "direction": "up",
+        "start": [
+            9,
+            3
+        ],
+        "end": [
+            2,
+            3
+        ]
+    }
 }
 ```
 
