@@ -4,6 +4,8 @@
 **Course:** A.B. Cognitive Science - CSCI1300
 **Date:** 08 December 2024
 
+---
+
 A command-line application for generating and solving word search puzzles, written in Python and designed following object-oriented principles.
 
 ## Overview
